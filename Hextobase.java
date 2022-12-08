@@ -1,3 +1,5 @@
+import java.lang.Math;
+
 public class Hextobase {
     public String hex;
     public String base;
@@ -20,102 +22,122 @@ public class Hextobase {
         {
             char ch = hex.charAt(i);
 
-                switch (ch){
-                    case 'a':
-                        binary[i] = (byte)a;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
-                    case 'b':
-                        binary[i] = (byte)b;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
-                    case 'c':
-                        binary[i] = (byte)c;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
-                    case 'd':
-                        binary[i] = (byte)d;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
-                    case 'e':
-                        binary[i] = (byte)e;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
-                    case 'f':
-                        binary[i] = (byte)f;
-                        System.out.println("hexToBinary addition: "+binary[i]);
-                        continue;
+            switch (ch) {
+                case 'a' -> {
+                    binary[i] = (byte) a;
+                    continue;
                 }
+                case 'b' -> {
+                    binary[i] = (byte) b;
+                    continue;
+                }
+                case 'c' -> {
+                    binary[i] = (byte) c;
+                    continue;
+                }
+                case 'd' -> {
+                    binary[i] = (byte) d;
+                    continue;
+                }
+                case 'e' -> {
+                    binary[i] = (byte) e;
+                    continue;
+                }
+                case 'f' -> {
+                    binary[i] = (byte) f;
+                    continue;
+                }
+            }
 
                 binary[i] = Byte.parseByte(String.valueOf(ch));
-            System.out.println("hexToBinary addition: "+binary[i]);
         }
-
+        binary = reverseArray(binary);
         return binary;
     }
 
     static private String binaryToBase(byte[] arr)
     {
-        String base = "";
-        byte[] baseBytes = new byte[countBinaryHex(arr)/64 + 2];
+        StringBuilder base = new StringBuilder();
+        byte[] baseBytes = new byte[arr.length];
         int placeholder;
         int carry = 0;
         for (int i = 0, j = 0; i < arr.length; i+=2, j++) {
             placeholder = carry;
             carry = 0;
             placeholder += (int)arr[i];
-            if (i != arr.length - 1) { placeholder += (int) (arr[i+1] * 16); }
+
+            if (i != arr.length - 1) {
+                placeholder += (int) (arr[i+1] * 16);
+                System.out.println("placeholder after [i+1]: " + placeholder);
+            }
 
             if (placeholder > 63)
             {
                 carry = placeholder / 64;
                 placeholder = placeholder % 63;
+                System.out.println("carry: "+ carry);
+                System.out.println("place after %: " + placeholder);
             }
+            System.out.println(placeholder +" j: "+ j);
             baseBytes[j] = (byte)placeholder;
         }
 
-        for(int i = 0; i< baseBytes.length; i++)
-        {
-            if( ((int) baseBytes[i]) < 26)
-            {
-                base += (char) ( ((int)baseBytes[i]) + 65);
+        for (byte baseByte : baseBytes) {
+            if (((int) baseByte) < 26) {
+                base.append((char) (((int) baseByte) + 65));
 
-            } else if ( ((int) baseBytes[i]) < 52) {
+            } else if (((int) baseByte) < 52) {
 
-                base += (char) ( ((int)baseBytes[i]) + 65);
+                base.append((char) (((int) baseByte) + 65));
 
-            } else if ( ((int) baseBytes[i]) < 62) {
+            } else if (((int) baseByte) < 62) {
 
-                base += (char) ( ((int)baseBytes[i]) - 4);
+                base.append((char) (((int) baseByte) - 4));
 
-            } else if ( ((int) baseBytes[i]) > 61) {
-                switch ((int)baseBytes[i]){
-                    case 62:
-                        base += "+";
+            } else {
+                switch ((int) baseByte) {
+                    case 62 -> {
+                        base.append("+");
                         continue;
-                    case 63:
-                        base += "/";
+                    }
+                    case 63 -> base.append("/");
                 }
             }
-            return base;
+            return base.toString();
         }
 
         System.out.println("Something went wrong in binaryToBase()");
         return null;
     }
 
+    /* OVERFLOW ISSUES : DEPRECIATED <!>
     static private int countBinaryHex(byte[] arr)
     {
         int count = 0;
-        for (int i = 0; i < arr.length; i++) {
-            count += (int)arr[i];
+        int power = 0;
+        for (byte b : arr) {
+            count += ((int)b) * ((int)Math.pow((16), power));
+            power++;
         }
-        System.out.println("count is " + count);
         return count;
+    }
+     */
+
+    /*Reversing array is necessary as indexing i=0 starts at the most significant digit. Rest of functions work on assumption that 0 index is least significant and carry over excess*/
+    static byte[] reverseArray(byte[] arr)
+    {
+        byte temp;
+        for(int i=0, j=arr.length - 1; i < arr.length / 2; i++, j--)
+        {
+            temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr;
     }
 
     public static void main(String[] args)
     {
-        System.out.println(hexToBase("fffcccc"));
+        System.out.println(hexToBase("ff"));
     }
 }
