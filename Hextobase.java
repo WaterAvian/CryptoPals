@@ -51,28 +51,32 @@ public class Hextobase {
 
                 binary[i] = Byte.parseByte(String.valueOf(ch));
         }
-        reverseArray(binary);
+        reverseArray(binary); //first reverse, least significant digit first
         return binary;
     }
 
     static private String binaryToBase(byte[] arr)
     {
         StringBuilder base = new StringBuilder();
-        byte[] baseBytes = new byte[arr.length];
+        byte[] baseBytes = new byte[arr.length / 3 * 2 + 2]; //Hex and Base64 meet at 12 bits. Thuses I doth declare TODO:explain
         int placeholder;
         int carry = 0;
         int j = 0;
-        for (int i = 0; i < arr.length; i+=2, j++) {
+        for (int i = 0; i < arr.length; j++) {
             placeholder = carry;
             System.out.println("placeholder init: "+ placeholder);
             carry = 0;
+
             placeholder += (int)arr[i];
+            i++;
             System.out.println("Placeholder <- arr[i]: " + placeholder);
 
-            if (i != arr.length - 1) {
-                placeholder += (int) (arr[i+1] * 16);
+            if (i < arr.length) {
+                placeholder += (int) (arr[i] * 16); i++;
+
                 System.out.println("placeholder <- [i+1]: " + placeholder);
             }
+            //if (i != arr.length - 2) {placeholder += (int) (arr[i] * 16 * 16); i++;}
 
             if (placeholder > 63)
             {
@@ -90,7 +94,7 @@ public class Hextobase {
         if(baseBytes.length != 1) {baseBytes[j] = (byte)carry;} //Interesting, j is incremented after i > condition. So no [j+1]
 
         for(byte b : baseBytes){
-            System.out.println("test "+b);
+            System.out.println("values from index 0: "+b);
         }
 
         for (byte baseByte : baseBytes) {
@@ -99,7 +103,7 @@ public class Hextobase {
 
             } else if (((int) baseByte) < 52) {
 
-                base.append((char) (((int) baseByte) + 65));
+                base.append((char) (((int) baseByte) + 71));
 
             } else if (((int) baseByte) < 62) {
 
@@ -107,15 +111,12 @@ public class Hextobase {
 
             } else {
                 switch ((int) baseByte) {
-                    case 62 -> {
-                        base.append("+");
-                        continue;
-                    }
+                    case 62 -> base.append("+");
                     case 63 -> base.append("/");
                 }
             }
         }
-        return base.reverse().toString();
+        return base.toString(); //reverse of the reverse. Most significant digit first.
 
     }
 
@@ -147,6 +148,9 @@ public class Hextobase {
 
     public static void main(String[] args)
     {
-        System.out.println(hexToBase("1f"));
+        System.out.println("base64: "+hexToBase("fff"));
     }
 }
+
+//byte[] decodedHex = Hex.decodeHex(hex);
+//byte[] encodedHexB64 = Base64.codeBase64(decodedHex);
