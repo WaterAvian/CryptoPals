@@ -51,7 +51,7 @@ public class Hextobase {
 
                 binary[i] = Byte.parseByte(String.valueOf(ch));
         }
-        binary = reverseArray(binary);
+        reverseArray(binary);
         return binary;
     }
 
@@ -61,25 +61,36 @@ public class Hextobase {
         byte[] baseBytes = new byte[arr.length];
         int placeholder;
         int carry = 0;
-        for (int i = 0, j = 0; i < arr.length; i+=2, j++) {
+        int j = 0;
+        for (int i = 0; i < arr.length; i+=2, j++) {
             placeholder = carry;
+            System.out.println("placeholder init: "+ placeholder);
             carry = 0;
             placeholder += (int)arr[i];
+            System.out.println("Placeholder <- arr[i]: " + placeholder);
 
             if (i != arr.length - 1) {
                 placeholder += (int) (arr[i+1] * 16);
-                System.out.println("placeholder after [i+1]: " + placeholder);
+                System.out.println("placeholder <- [i+1]: " + placeholder);
             }
 
             if (placeholder > 63)
             {
                 carry = placeholder / 64;
-                placeholder = placeholder % 63;
-                System.out.println("carry: "+ carry);
-                System.out.println("place after %: " + placeholder);
+                System.out.println("Placeholder: "+placeholder);
+                placeholder = placeholder % 64;
+                System.out.println("Placeholder after mod: "+placeholder);
+                System.out.println("carry >63: "+ carry);
+                System.out.println("placeholder after %: " + placeholder);
             }
             System.out.println(placeholder +" j: "+ j);
+            System.out.println("byte placeholder: " + (byte)placeholder);
             baseBytes[j] = (byte)placeholder;
+        }
+        if(baseBytes.length != 1) {baseBytes[j] = (byte)carry;} //Interesting, j is incremented after i > condition. So no [j+1]
+
+        for(byte b : baseBytes){
+            System.out.println("test "+b);
         }
 
         for (byte baseByte : baseBytes) {
@@ -103,11 +114,9 @@ public class Hextobase {
                     case 63 -> base.append("/");
                 }
             }
-            return base.toString();
         }
+        return base.reverse().toString();
 
-        System.out.println("Something went wrong in binaryToBase()");
-        return null;
     }
 
     /* OVERFLOW ISSUES : DEPRECIATED <!>
@@ -138,6 +147,6 @@ public class Hextobase {
 
     public static void main(String[] args)
     {
-        System.out.println(hexToBase("ff"));
+        System.out.println(hexToBase("1f"));
     }
 }
